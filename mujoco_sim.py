@@ -17,7 +17,7 @@ class MuJoCoSim:
         this.mj_model = go2_mujoco.model
         this.mj_data = go2_mujoco.data
         this.dt = dt
-        this.model.opt.timestep = dt
+        this.mj_model.opt.timestep = dt
         this.viewer = None
 
 
@@ -67,3 +67,13 @@ class MuJoCoSim:
                 this.apply_control(tau)
                 this.step()
                 this.render()
+
+
+def main():
+    # mj_sim = MuJoCoSim()
+    # print(mj_sim.mj_model.nq)
+    pass
+
+
+if __name__ == "__main__":
+    main()
