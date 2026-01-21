@@ -6,18 +6,64 @@
 from robot_description.go2_description import go2_mujoco
 
 import mujoco as mj
-import mujoco.viewer
+import mujoco.viewer as mjv
+import logging 
+from dataclasses import dataclass, field
 
 
-class MuJoCoSim:
+@dataclass
+class IdkSimConfig:
+    """Configuration for the Go2 Simulation. """
+    # simulation settings
+    dt: float = 0.002
+    show_msg: bool = True
+    show_contact_pts: bool = False
+    show_joint_axes: bool = False
+    transparent_robot: bool = False    # xray_mode: show axes + transparent
+    # show_contact_forces: bool = False   //TODO: NOT IN USE
+    # show_com: bool = False              //TODO: NOT IN USE
 
 
-    def __init__(this, dt=0.001):
+@dataclass
+class IdkSimPropty:
+    """Dynamic simulation properties. """
+    # kd: float = 0.1             //TODO: NOT IN USE
+    # kp: float = 0.1             //TODO: NOT IN USE
+    # use_gravity: bool = True    //TODO: NOT IN USE
+
+
+@dataclass
+class IdkSimCamConfig:
+    """Camera configuration for the simulation viewer. """
+    # camera settings
+    cam_azimuth: float = 135.0    # Horizontal angle (deg)
+    cam_elevation: float = -20.0  # Vertical angle (deg)
+    cam_distance: float = 3.0     # Distance from robot (meters)
+    cam_target: list = field(default_factory=lambda: [0, 0, 0.3]) # Focus point
+    # enable_recorder: bool = False //TODO: NOT IN USE
+
+
+class IdkSim:
+
+
+    def __init__(
+            this, 
+            simConfig: IdkSimConfig = None, 
+            simPropty: IdkSimPropty = None, 
+            simCamConfig: IdkSimCamConfig = None):
+        
         this.model = go2_mujoco.model
         this.data = go2_mujoco.data
-        this.dt = dt
-        this.model.opt.timestep = dt
+
+        this.simConfig = simConfig or IdkSimConfig()
+        this.simPropty = simPropty or IdkSimPropty()
+        this.simCamConfig = simCamConfig or IdkSimCamConfig()
+
+        # values from config obj
+        this.dt = this.simConfig.dt; this.model.opt.timestep = this.simConfig.dt    # defaut to 0.002s
+
         this.viewer = None
+        this.programMsg = True
 
 
     def reset(this):
@@ -26,8 +72,9 @@ class MuJoCoSim:
 
     def get_state(this):
         return {
-            "qpos": this.data.qpos.copy(),
-            "qvel": this.data.qvel.copy(),
+            "q": this.data.qpos.copy(),
+            "qd": this.data.qvel.copy(),
+            "qdd": this.data.qacc.copy(),
         }
 
 
@@ -45,28 +92,23 @@ class MuJoCoSim:
 
 
     def launch_viewer(this, contactPts=False, jointAxes=False, robotTransprt=False):
-        this.viewer = mujoco.viewer.launch_passive(
+        this.viewer = mjv.launch_passive(
             this.model, this.data
         )
 
-        # Camera configuration
-        this.viewer.cam.azimuth = 135
-        this.viewer.cam.elevation = -20
-        this.viewer.cam.distance = 3
-        this.viewer.cam.lookat[:] = [0, 0, 0.3]
+        # camera configuration
+        this.viewer.cam.azimuth = this.simCamConfig.cam_azimuth
+        this.viewer.cam.elevation = this.simCamConfig.cam_elevation
+        this.viewer.cam.distance = this.simCamConfig.cam_distance
+        this.viewer.cam.lookat[:] = this.simCamConfig.cam_target
 
-        # Show contact points
-        this.viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_JOINT] = contactPts
-        
-        # Show joint axes
-        this.viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CONTACTPOINT] = jointAxes
-
-        # Make the robot slightly transparent to see internal joints
-        this.viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_TRANSPARENT] = robotTransprt
+        this.viewer.opt.flags[mj.mjtVisFlag.mjVIS_JOINT] = this.simConfig.show_contact_pts
+        this.viewer.opt.flags[mj.mjtVisFlag.mjVIS_CONTACTPOINT] = this.simConfig.show_joint_axes
+        this.viewer.opt.flags[mj.mjtVisFlag.mjVIS_TRANSPARENT] = this.simConfig.transparent_robot
 
 
     def run(this, tau):
-        this.launch_viewer(True, True, True)
+        this.launch_viewer(False, False, False)
 
         with this.viewer:
             while this.viewer.is_running():
@@ -76,15 +118,8 @@ class MuJoCoSim:
                 this.step()
                 this.render()
 
+
     def close(this):
         this.viewer.close()
 
 
-def main():
-    # mj_sim = MuJoCoSim()
-    # print(mj_sim.mj_model.nq)
-    pass
-
-
-if __name__ == "__main__":
-    main()
