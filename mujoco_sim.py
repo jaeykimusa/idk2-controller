@@ -16,7 +16,7 @@ class IdkSimConfig:
     """Configuration for the Go2 Simulation. """
     # simulation settings
     dt: float = 0.002
-    show_msg: bool = True
+    showSimMsg: bool = True
     show_contact_pts: bool = False
     show_joint_axes: bool = False
     transparent_robot: bool = False    # xray_mode: show axes + transparent
@@ -63,7 +63,17 @@ class IdkSim:
         this.dt = this.simConfig.dt; this.model.opt.timestep = this.simConfig.dt    # defaut to 0.002s
 
         this.viewer = None
-        this.programMsg = True
+        this.showSimMsg = this.simConfig.showSimMsg
+
+        # basic logging
+        # Configure how the message looks
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+            datefmt='%H:%M:%S'
+        )
+        logger = logging.getLogger("Go2Controller")
+        logger.info("MuJoCo model loaded successfully.")
 
 
     def reset(this):
