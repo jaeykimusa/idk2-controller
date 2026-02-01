@@ -12,13 +12,13 @@ import mujoco as mj
 
 def main():
     simConfig = IdkSimConfig(
-        show_contact_pts=True, 
-        show_joint_axes=True, 
-        transparent_robot=True
+        show_contact_pts=False, 
+        show_joint_axes=False, 
+        transparent_robot=False,
         )
     
     mj_sim = IdkSim(simConfig=simConfig)
-    
+
     # mj_sim.launch_viewer()
     zero_torques = np.zeros(12)
     mj_sim.run(zero_torques)

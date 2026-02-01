@@ -47,11 +47,14 @@ class IdkSim:
 
 
     def __init__(
-            this, 
-            simConfig: IdkSimConfig = None, 
-            simPropty: IdkSimPropty = None, 
-            simCamConfig: IdkSimCamConfig = None):
+            this,
+            simName: str = "defaultSim",
+            simConfig: IdkSimConfig | None = None, 
+            simPropty: IdkSimPropty| None = None, 
+            simCamConfig: IdkSimCamConfig | None = None):
         
+        this.simName = simName
+
         this.model = go2_mujoco.model
         this.data = go2_mujoco.data
 
