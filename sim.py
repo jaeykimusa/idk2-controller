@@ -4,7 +4,7 @@
 # date: 01/19/2026
 
 
-from mujoco_sim import IdkSim, IdkSimConfig
+from crrl_mujoco import IdkSim, IdkSimConfig
 
 import numpy as np
 import mujoco as mj
@@ -17,7 +17,7 @@ def main():
         transparent_robot=False,
         )
     
-    mj_sim = IdkSim(simConfig=simConfig)
+    mj_sim = IdkSim(simName="ExampleRun", simConfig=simConfig)
 
     # mj_sim.launch_viewer()
     zero_torques = np.zeros(12)

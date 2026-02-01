@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 
 
 @dataclass
-class IdkSimConfig:
+class CRRLMujocoConfig:
     """Configuration for the Go2 Simulation. """
     # simulation settings
     dt: float = 0.002
@@ -25,7 +25,7 @@ class IdkSimConfig:
 
 
 @dataclass
-class IdkSimPropty:
+class CRRLMujocoPropty:
     """Dynamic simulation properties. """
     # kd: float = 0.1             //TODO: NOT IN USE
     # kp: float = 0.1             //TODO: NOT IN USE
@@ -33,7 +33,7 @@ class IdkSimPropty:
 
 
 @dataclass
-class IdkSimCamConfig:
+class CRRLMujocoCamConfig:
     """Camera configuration for the simulation viewer. """
     # camera settings
     cam_azimuth: float = 135.0    # Horizontal angle (deg)
@@ -43,24 +43,24 @@ class IdkSimCamConfig:
     # enable_recorder: bool = False //TODO: NOT IN USE
 
 
-class IdkSim:
+class CRRLMujoco:
 
 
     def __init__(
             this,
             simName: str = "defaultSim",
-            simConfig: IdkSimConfig | None = None, 
-            simPropty: IdkSimPropty| None = None, 
-            simCamConfig: IdkSimCamConfig | None = None):
+            simConfig: CRRLMujocoConfig | None = None, 
+            simPropty: CRRLMujocoPropty| None = None, 
+            simCamConfig: CRRLMujocoCamConfig | None = None):
         
         this.simName = simName
 
         this.model = go2_mujoco.model
         this.data = go2_mujoco.data
 
-        this.simConfig = simConfig or IdkSimConfig()
-        this.simPropty = simPropty or IdkSimPropty()
-        this.simCamConfig = simCamConfig or IdkSimCamConfig()
+        this.simConfig = simConfig or CRRLMujocoConfig()
+        this.simPropty = simPropty or CRRLMujocoPropty()
+        this.simCamConfig = simCamConfig or CRRLMujocoCamConfig()
 
         # values from config obj
         this.dt = this.simConfig.dt; this.model.opt.timestep = this.simConfig.dt    # defaut to 0.002s
